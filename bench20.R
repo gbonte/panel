@@ -12,8 +12,11 @@ library(kerasR)
 library(Rssa)
 
 savefile<-TRUE
-N<-1500
-n<-20
+## if TRUE it saves results
+
+N<-1500 ## number of series observations
+n<-20  ## dimension of multivariate series
+
 p0=3
 m=2
 CC=2
