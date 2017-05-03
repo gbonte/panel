@@ -1,15 +1,22 @@
 rm(list=ls())
+
+
+
 library("psych")
-source("nar.R")
-source("starpred.R")
 require(gbcode)
 require(autoencoder)
 require(rnn)
-source("rescale.R")
 require(pls)
 require(MTS)
 library(kerasR)
 library(Rssa)
+
+
+source("nar.R")
+source("starpred.R")
+source("rescale.R")
+
+
 
 savefile<-TRUE
 ## if TRUE it saves results
@@ -55,7 +62,7 @@ Nval=10 ## number of test horizons
 ## 11: SSA
 
 for (H in c(5,10,20)){ ## horizons
-  for (it in c(0,10,20)){ ## number of repetitions
+  for (it in c(0,10,20)){ ## increment of noise varaince
     for (number in 1:14){ # number of series
       set.seed(number+it)
       
@@ -64,10 +71,13 @@ for (H in c(5,10,20)){ ## horizons
       N=NROW(X)
 
 
-      Ntr=round(2*N/3)
+      Ntr=round(2*N/3) ## size of training set
       Xtr=X[1:Ntr,]
 
 
+
+#####  TRAINING
+      
       if (is.element(2,Algos)){
         cat("D: pcadesign \n")
         ptm <- proc.time()
@@ -127,6 +137,7 @@ for (H in c(5,10,20)){ ## horizons
         cat("Elapsed vardesign=",proc.time() - ptm,"\n")
       }
 
+########### TESTING
       
       for (s in seq(Ntr,N-H,length.out=Nval)){
     
@@ -194,16 +205,16 @@ for (H in c(5,10,20)){ ## horizons
         Xhat11=Xhat0
     
         if (is.element(11,Algos)){
-          ptm <- proc.time()
           Xhat11=ssapred(Xtr,H)
-          cat("Elapsed ssapred=",proc.time() - ptm,"\n")
-          
         }
 ######## ALGO 12
         Xhat12=Xhat0
         if (is.element(12,Algos)){
           Xhat12=pcapred(Xtr,P2$m,H,P2$p,cc=P2$cc,mod=P2$mod,V=P2$V,orth=TRUE)
-        }               
+        }
+
+
+##########  ERROR COMPUATION
         e.hat=apply((Xts-Xhat)^2,2,mean)
         e.hat2=apply((Xts-Xhat2)^2,2,mean)
         e.hat3=apply((Xts-Xhat3)^2,2,mean)
@@ -217,6 +228,8 @@ for (H in c(5,10,20)){ ## horizons
         e.hat11=apply((Xts-Xhat11)^2,2,mean)
         e.hat12=apply((Xts-Xhat12)^2,2,mean)
         e.hat0=apply((Xts-Xhat0)^2,2,mean)
+
+##### RESULTS STORAGE
         allE=rbind(allE,c(it,H,number,n,mean(e.hat)))
         allE2=rbind(allE2,c(it,H,number,n,mean(e.hat2)))
         allE3=rbind(allE3,c(it,H,number,n,mean(e.hat3)))
@@ -234,34 +247,40 @@ for (H in c(5,10,20)){ ## horizons
         cat(".")
        
       } ## for s
+
+
+##### PRINT OUT OF RESULTS
+      
+      indH<-which(allE0[,2]==H)
       cat("\n **** \n it=",it,"n=",n,"number=",number, " H=",H)
-      cat( " naive:",mean(allE0[,5]))
+      cat( " naive:",mean(allE0[indH,5]))
       if (is.element(1,Algos))
-        cat( " pc:",mean(allE[,5]))
+        cat( " pc:",mean(allE[indH,5]))
       if (is.element(2,Algos))
-        cat(" pc2:",mean(allE2[,5]))
+        cat(" pc2:",mean(allE2[indH,5]))
        if (is.element(12,Algos))
-        cat(" pc2d :",mean(allE12[,5]))
+        cat(" pc2d :",mean(allE12[indH,5]))
       if (is.element(3,Algos))
-        cat(" pc2dse:",mean(allE3[,5]))
+        cat(" pc2dse:",mean(allE3[indH,5]))
       if (is.element(4,Algos))
-        cat(" au :",mean(allE4[,5]))
+        cat(" au :",mean(allE4[indH,5]))
       if (is.element(5,Algos))
-        cat(" au2 :",mean(allE5[,5]))
+        cat(" au2 :",mean(allE5[indH,5]))
       if (is.element(6,Algos))
-        cat( " rnn :",mean(allE6[,5]))
+        cat( " rnn :",mean(allE6[indH,5]))
       if (is.element(7,Algos))
-        cat(" dse :",mean(allE7[,5]))
+        cat(" dse :",mean(allE7[indH,5]))
       if (is.element(8,Algos))
-        cat(" pls :",mean(allE8[,5]))
+        cat(" pls :",mean(allE8[indH,5]))
       if (is.element(9,Algos))
-        cat(" uni :",mean(allE9[,5]))
+        cat(" uni :",mean(allE9[indH,5]))
       if (is.element(10,Algos))
-        cat(" VAR :",mean(allE10[,5]))
+        cat(" VAR :",mean(allE10[indH,5]))
        if (is.element(11,Algos))
-        cat(" SSA :",mean(allE11[,5]))
+        cat(" SSA :",mean(allE11[indH,5]))
       cat("\n")
 
+##### SAVING RESULTS
       namefile=paste("bench",n,"Rdata",sep=".")
       if (savefile)
         save(file=namefile,
