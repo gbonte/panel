@@ -6,7 +6,6 @@ require(gbcode)
 require(autoencoder)
 require(rnn)
 source("rescale.R")
-##source("mloo.R")
 require(pls)
 require(MTS)
 library(kerasR)
@@ -35,20 +34,23 @@ allE10<-NULL
 allE11<-NULL
 allE12<-NULL
 allE0<-NULL
-Algos=1:2
-Nval=10
+Algos=1:10
+
+Nval=10 ## number of test horizons
+
 ## 0: naive
-## 1:  PCA + KNN
-## 2:  PCA  + KNN calibrated
-## 3: PCA +DSE
-## 4:  AUTOENCODE  + KNN 
-## 5:  AUTOENCODE  + KNN calibrated
+## 1:  DFML: PCA + KNN
+## 2:  DFML: PCA  + KNN calibrated
+## 3:  DFM: PCA +DSE
+## 4:  DFML: AUTOENCODE  + KNN 
+## 5:  DFML: AUTOENCODE  + KNN calibrated
 ## 6:  RNN
 ## 7:  DSE
-## 8:  PLS calibrated
-## 9:  UNI+FS
+## 8:  PLS
+## 9:  UNI
 ## 10: VAR
 ## 11: SSA
+
 for (H in c(5,10,20)){ ## horizons
   for (it in c(0,10,20)){ ## number of repetitions
     for (number in 1:14){ # number of series
@@ -67,8 +69,6 @@ for (H in c(5,10,20)){ ## horizons
         cat("D: pcadesign \n")
         ptm <- proc.time()
         P=pcadesign(Xtr,2*m,H,2*p0,CC=2*CC,Lcv=20)
-        P2=P
-        #P2=pcadesign(Xtr,2*m,H,2*p0,CC=2*CC,lambda=0.1,Lcv=20)
         cat("Elapsed pcadesign=",proc.time() - ptm,"\n")
         print(P$mod)
       }
