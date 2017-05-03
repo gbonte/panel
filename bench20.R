@@ -11,7 +11,7 @@ require(MTS)
 library(kerasR)
 library(Rssa)
 
-savefile<-FALSE
+savefile<-TRUE
 N<-1500
 n<-20
 p0=3
