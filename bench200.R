@@ -43,7 +43,7 @@ savefile<-TRUE
 ## if TRUE it saves results
 
 N<-1500 ## number of series observations
-n<-20  ## dimension of multivariate series
+n<-200  ## dimension of multivariate series
 
 p0=3
 m=2
@@ -51,7 +51,7 @@ CC=2
 models=c("lazydirect","lazyiter","mimo.comb")
 nseries=14
 
-Algos=1:10
+Algos=c(1,2,3,4,6,9)
 
 Nval=50 ## number of test horizons
 namesAlgos=c(" DFML_PC "," DFML'_PC "," DFM "," DFML_A "," DFML'_A "," RNN "," DSE "," PLS "," UNI "," VAR "," SSA ")

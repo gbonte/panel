@@ -43,21 +43,13 @@ savefile<-TRUE
 ## if TRUE it saves results
 
 N<-1500 ## number of series observations
-n<-20  ## dimension of multivariate series
+n<-100  ## dimension of multivariate series
 
 p0=3
 m=2
 CC=2
 models=c("lazydirect","lazyiter","mimo.comb")
 nseries=14
-
-Algos=1:10
-
-Nval=50 ## number of test horizons
-namesAlgos=c(" DFML_PC "," DFML'_PC "," DFM "," DFML_A "," DFML'_A "," RNN "," DSE "," PLS "," UNI "," VAR "," SSA ")
-
-
-
 
 allS=NULL
 allE=NULL
@@ -73,16 +65,19 @@ allE10<-NULL
 allE11<-NULL
 allE12<-NULL
 allE0<-NULL
+Algos=1:10
+
+Nval=50 ## number of test horizons
+
+namesAlgos=c("DFML_PC","DFML'_PC","DFM","DFML_A","DFML'_A","RNN","DSE","PLS","UNI","VAR","SSA")
 
 
-for (H in c(5,10,20)){ ## horizons
+
+for (H in c(20)){ ## horizons
   for (it in c(0,10,20)){ ## increment of noise varaince
     for (number in 1:14){ # number of series
       set.seed(number+it)
-
-
-
-#### DATA GENERATION
+      
       X=genstar(N,n,number=number,s=0.1+0.01*it,loc=4,mix=rep(1:(nseries-1),n)[1:n])
       X=scale(X)
       N=NROW(X)
@@ -290,7 +285,7 @@ for (H in c(5,10,20)){ ## horizons
       cat("\n")
 
 ##### SAVING RESULTS
-      namefile=paste("bench",n,"Rdata",sep=".")
+      namefile=paste("bench.H20",n,"Rdata",sep=".")
       if (savefile)
         save(file=namefile,
              list=c("Algos","allE","allE2","allE3","allE4","allE5","allE6","allE7","allE8","allE9","allE10","allE11","allE0"))
